@@ -71,7 +71,7 @@ for r in range(0,dim):
 
 
 
-out = np.zeros(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
+out = np.zeros(ker*dep*dim*dim, dtype='uint8').reshape((ker,dep,dim,dim))
 for k in range(0,ker):
     for l in range(0,dep):
         kk = np.rot90(ker_l_3[k,l].reshape((3,3)),2)
