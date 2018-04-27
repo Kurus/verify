@@ -3,12 +3,12 @@ from scipy import signal as sg
 dim = 6
 dim_p=dim + 2
 dep = 4
-ker = 16
+ker = 32
 
 in_l = np.zeros(dim_p*dim_p*dep, dtype='uint8').reshape((dim_p,dim_p,dep))
 in_ori = np.arange(dim*dim*dep, dtype='uint8').reshape((dim,dim,dep))
 in_l[1:-1,1:-1,:] = in_ori
-# print(in_l[:,:,1]); print("_____________________-")
+# print(in_l[:,:,0]); print("_____________________-")
 f_in = open("input_layer.txt","w")
 f_in_b = open("input_layer.bin","wb")
 for z in range(0,dim):
@@ -32,7 +32,7 @@ for z in range(0,dep):
     f_k_1.write(str(lis)[1:-1]+'\n')
 
 ker_l_3 = np.arange(ker*dep*9, dtype='uint8').reshape((ker,dep,9))
-# print(ker_l_3[:,1,:]);print("________")
+# print(ker_l_3[0,0,:]);print("________")
 f_k_3 = open("ker_3x3.txt","w")
 f_k_3_b = open("ker_3x3.bin","wb")
 for m in range(0,dim): # repet 3x3 kernel
@@ -71,10 +71,11 @@ for r in range(0,dim):
 
 
 
-out = np.zeros(ker*dep*dim*dim, dtype='uint8').reshape((ker,dep,dim,dim))
+out = np.zeros(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
 for k in range(0,ker):
     for l in range(0,dep):
-        res = sg.convolve(in_l[:,:,l],ker_l_3[k,l].reshape((3,3)) , "valid").astype(int)
+        kk = np.flip(np.flip(ker_l_3[k,l].reshape((3,3)),1),0)
+        res = sg.convolve(in_l[:,:,l],kk , "valid").astype(int)
         res = np.bitwise_and(res, 0xff)
         out[k,l,:,:]=res
 # print(out[1,1,:,:]);print('______')
