@@ -74,7 +74,7 @@ for r in range(0,dim):
 out = np.zeros(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
 for k in range(0,ker):
     for l in range(0,dep):
-        kk = np.flip(np.flip(ker_l_3[k,l].reshape((3,3)),1),0)
+        kk = np.rot90(ker_l_3[k,l].reshape((3,3)),2)
         res = sg.convolve(in_l[:,:,l],kk , "valid").astype(int)
         res = np.bitwise_and(res, 0xff)
         out[k,l,:,:]=res
