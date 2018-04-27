@@ -1,9 +1,9 @@
 import numpy as np
 from scipy import signal as sg
-dim = 6
+dim = 56
 dim_p=dim + 2
-dep = 4
-ker = 8
+dep = 16
+ker = 64
 
 in_l = np.zeros(dim_p*dim_p*dep, dtype='uint8').reshape((dim_p,dim_p,dep))
 in_ori = np.arange(dim*dim*dep, dtype='uint8').reshape((dim,dim,dep))
