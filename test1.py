@@ -47,66 +47,100 @@ for m in range(0,dim): # repet 3x3 kernel
             f_k_3_b.write(bytearray(nin))
             f_k_3.write(str(nin)[1:-1]+'\n')
 
+bis_1 = np.arange(ker,dtype='uint8')
+bis_3 = np.arange(ker,dtype='uint8')
+b_bis = open("bias.txt","w")
+b_bis_b = open("bias.bin","wb")
+# print(bis_1)
+for i in range(0,ker,4):
+    b_bis.write(str(bis_3[i:i+4])[1:-1]+'\n')
+    b_bis.write(str(bis_1[i:i+4])[1:-1]+'\n')
+    b_bis_b.write(bytearray(bis_3[i:i+4]))
+    b_bis_b.write(bytearray(bis_1[i:i+4]))
 
-
-out = np.zeros(ker*dep*dim*dim, dtype='uint8').reshape((ker,dep,dim,dim))
+out_1 = np.zeros(ker*dep*dim*dim, dtype='uint8').reshape((ker,dep,dim,dim))
 for k in range(0,ker):
     for l in range(0,dep):
         res = sg.convolve(in_l[:,:,l],[[ker_l_1[k,l]]] , "valid").astype(int)
         res = np.bitwise_and(res, 0xff)
-        out[k,l,:,:]=res[1:-1,1:-1]
-# print(out[1,1,:,:]);print('______')
-f_out = open("out_1x1.txt","w")
-f_out_b = open("out_1x1.bin","wb")
-# out = np.arange(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
+        out_1[k,l,:,:]=res[1:-1,1:-1]
+# print(out_1[1,1,:,:]);print('______')
+f_out_1 = open("out_1x1.txt","w")
+f_out_1_b = open("out_1x1.bin","wb")
+# out_1 = np.arange(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
 for r in range(0,dim):
     for d in range(0,dep):
         for c in range(0,dim):
-            lis = out[:,d,r,c]
-            f_out_b.write(bytearray(lis))
-            f_out.write(str(lis)[1:-1]+'\n')
+            lis = out_1[:,d,r,c]
+            f_out_1_b.write(bytearray(lis))
+            f_out_1.write(str(lis)[1:-1]+'\n')
 
 
-
-
-
-
-out = np.zeros(ker*dep*dim*dim, dtype='uint8').reshape((ker,dep,dim,dim))
+out_3 = np.zeros(ker*dep*dim*dim, dtype='uint8').reshape((ker,dep,dim,dim))
 for k in range(0,ker):
     for l in range(0,dep):
         kk = np.rot90(ker_l_3[k,l].reshape((3,3)),2)
         res = sg.convolve(in_l[:,:,l],kk , "valid").astype(int) # addre lus
         res = np.bitwise_and(res, 0xff)
-        out[k,l,:,:]=res
-# print(out[1,1,:,:]);print('______')
-# out = np.arange(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
+        out_3[k,l,:,:]=res
+# print(out_3[1,1,:,:]);print('______')
+# out_3 = np.arange(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
 
-f_out = open("out_3x3.txt","w")
-f_out_b = open("out_3x3.bin","wb")
+f_out_3 = open("out_3x3.txt","w")
+f_out_3_b = open("out_3x3.bin","wb")
 for r in range(0,dim):
     for d in range(0,dep):
         for c in range(0,dim):
-            lis = out[:,d,r,c]
-            f_out_b.write(bytearray(lis))
-            f_out.write(str(lis)[1:-1]+'\n')
+            lis = out_3[:,d,r,c]
+            f_out_3_b.write(bytearray(lis))
+            f_out_3.write(str(lis)[1:-1]+'\n')
 
-#integration 2
-out = np.sum(out,1)
-# out = np.arange(ker*dim*dim, dtype='uint8').reshape((ker,dim,dim)) #test pool
+############################add bias and relu
 dim_o = (dim - 1)//2
-# print(out)
-pool = np.zeros((ker,dim_o,dim_o))
+
+out_1 = np.sum(out_1,1) 
+print(out_1[2,:,:])
+for i in range(0,ker):
+    out_1[i,:,:] = out_1[i,:,:] + bis_1[i]
+# out_1[out_1 < 0] = 0 # no need for positive
+
+out_3 = np.sum(out_3,1)
+for i in range(0,ker):
+    out_3[i,:,:] = out_3[i,:,:] + bis_3[i]
+# out_3[out_3 < 0] = 0
+############ pooling
+# out_1 = np.arange(ker*dim*dim, dtype='uint8').reshape((ker,dim,dim)) #test pool
+# print(out_1)
+pool_1 = np.zeros((ker,dim_o,dim_o))
 for x in range(0,dim_o):
     xx = x*2
     for y in range(0,dim_o):
         yy = y*2
-        pool[:,x,y]= np.amax(out[:,xx:xx+3,yy:yy+3],(1,2))
+        pool_1[:,x,y]= np.amax(out_1[:,xx:xx+3,yy:yy+3],(1,2))
 
-pool_out = open("pool.txt","w")
-pool_out_b = open("pool.bin","wb")
-# print(pool)
+pool_out_1 = open("pool_1.txt","w")
+pool_out_1_b = open("pool_1.bin","wb")
+# print(pool_1)
 for x in range(0,dim_o):
     for y in range(0,dim_o):
-        lis=pool[:,x,y]
-        pool_out_b.write(bytearray(lis))
-        pool_out.write(str(lis)[1:-1]+'\n')
+        lis=pool_1[:,x,y]
+        pool_out_1_b.write(bytearray(lis))
+        pool_out_1.write(str(lis)[1:-1]+'\n')
+
+# out_3 = np.arange(ker*dim*dim, dtype='uint8').reshape((ker,dim,dim)) #test pool
+# print(out_3)
+pool_3 = np.zeros((ker,dim_o,dim_o))
+for x in range(0,dim_o):
+    xx = x*2
+    for y in range(0,dim_o):
+        yy = y*2
+        pool_3[:,x,y]= np.amax(out_3[:,xx:xx+3,yy:yy+3],(1,2))
+
+pool_out_3 = open("pool_3.txt","w")
+pool_out_3_b = open("pool_3.bin","wb")
+# print(pool_3)
+for x in range(0,dim_o):
+    for y in range(0,dim_o):
+        lis=pool_3[:,x,y]
+        pool_out_3_b.write(bytearray(lis))
+        pool_out_3.write(str(lis)[1:-1]+'\n')
