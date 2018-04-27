@@ -3,7 +3,7 @@ from scipy import signal as sg
 dim = 6
 dim_p=dim + 2
 dep = 4
-ker = 32
+ker = 8
 
 in_l = np.zeros(dim_p*dim_p*dep, dtype='uint8').reshape((dim_p,dim_p,dep))
 in_ori = np.arange(dim*dim*dep, dtype='uint8').reshape((dim,dim,dep))
@@ -75,7 +75,7 @@ out = np.zeros(ker*dep*dim*dim, dtype='uint8').reshape((ker,dep,dim,dim))
 for k in range(0,ker):
     for l in range(0,dep):
         kk = np.rot90(ker_l_3[k,l].reshape((3,3)),2)
-        res = sg.convolve(in_l[:,:,l],kk , "valid").astype(int)
+        res = sg.convolve(in_l[:,:,l],kk , "valid").astype(int) # addre lus
         res = np.bitwise_and(res, 0xff)
         out[k,l,:,:]=res
 # print(out[1,1,:,:]);print('______')
@@ -89,3 +89,24 @@ for r in range(0,dim):
             lis = out[:,d,r,c]
             f_out_b.write(bytearray(lis))
             f_out.write(str(lis)[1:-1]+'\n')
+
+#integration 2
+out = np.sum(out,1)
+# out = np.arange(ker*dim*dim, dtype='uint8').reshape((ker,dim,dim)) #test pool
+dim_o = (dim - 1)//2
+# print(out)
+pool = np.zeros((ker,dim_o,dim_o))
+for x in range(0,dim_o):
+    xx = x*2
+    for y in range(0,dim_o):
+        yy = y*2
+        pool[:,x,y]= np.amax(out[:,xx:xx+3,yy:yy+3],(1,2))
+
+pool_out = open("pool.txt","w")
+pool_out_b = open("pool.bin","wb")
+# print(pool)
+for x in range(0,dim_o):
+    for y in range(0,dim_o):
+        lis=pool[:,x,y]
+        pool_out_b.write(bytearray(lis))
+        pool_out.write(str(lis)[1:-1]+'\n')
