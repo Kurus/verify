@@ -4,11 +4,16 @@ dim = 6
 dim_p=dim + 2
 dep = 4
 ker = 32
+pool_en = 0
+random = 0 #TODO
 
 in_l = np.zeros(dim_p*dim_p*dep, dtype='uint8').reshape((dim_p,dim_p,dep))
-in_ori = np.arange(dim*dim*dep, dtype='uint8').reshape((dim,dim,dep))
+if random == 0:
+    in_ori = np.arange(dim*dim*dep, dtype='uint8').reshape((dim,dim,dep))
+else:
+    in_ori = np.random.randint(low = 0, high = 255, size = (dim,dim,dep), dtype='uint8')
 in_l[1:-1,1:-1,:] = in_ori
-# print(in_l[:,:,0]); print("_____________________-")
+print(in_l[:,:,0]); print("_____________________-")
 f_in = open("input_layer.txt","w")
 f_in_b = open("input_layer.bin","wb")
 for z in range(0,dim):
@@ -98,10 +103,10 @@ for r in range(0,dim):
 ############################add bias and relu
 dim_o = (dim - 1)//2
 
-out_1 = np.sum(out_1,1) 
+out_1 = np.sum(out_1,1,dtype='uint8') 
 for i in range(0,ker):
     out_1[i,:,:] = out_1[i,:,:] + bis_1[i]
-# out_1[out_1 < 0] = 0 # no need for positive
+out_1[out_1 > 127] = 0 # no need for positive
 exp_out_1 = open("exp_1.txt","w")
 exp_out_1_b = open("exp_1.bin","wb")
 for x in range(0,dim):
@@ -111,17 +116,17 @@ for x in range(0,dim):
         exp_out_1.write(str(lis)[1:-1]+'\n')
 
 
-out_3 = np.sum(out_3,1)
+out_3 = np.sum(out_3,1,dtype='uint8')
 for i in range(0,ker):
     out_3[i,:,:] = out_3[i,:,:] + bis_3[i]
-# out_3[out_3 < 0] = 0
+out_3[out_3 > 127] = 0
 exp_out_3 = open("exp_3.txt","w")
 exp_out_3_b = open("exp_3.bin","wb")
 for x in range(0,dim):
     for y in range(0,dim):
         lis=out_3[:,x,y]
-        exp_out_1_b.write(bytearray(lis))
-        exp_out_1.write(str(lis)[1:-1]+'\n')
+        exp_out_3_b.write(bytearray(lis))
+        exp_out_3.write(str(lis)[1:-1]+'\n')
 
 ############ pooling
 # out_1 = np.arange(ker*dim*dim, dtype='uint8').reshape((ker,dim,dim)) #test pool
@@ -159,3 +164,12 @@ for x in range(0,dim_o):
         lis=pool_3[:,x,y]
         pool_out_3_b.write(bytearray(lis))
         pool_out_3.write(str(lis)[1:-1]+'\n')
+
+################## squeeze
+sq_in=[]
+if pool_en == 1:
+    sq_in = np.concatenate((pool_1, pool_3), axis=0)
+else:
+    sq_in = np.concatenate((out_1, out_3), axis=0)
+
+# print(out_1[])
