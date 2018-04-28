@@ -4,6 +4,7 @@ dim = 6
 dim_p=dim + 2
 dep = 4
 ker = 32
+sq_ker = 16
 pool_en = 0
 random = 0 #TODO
 
@@ -13,7 +14,7 @@ if random == 0:
 else:
     in_ori = np.random.randint(low = 0, high = 255, size = (dim,dim,dep), dtype='uint8')
 in_l[1:-1,1:-1,:] = in_ori
-print(in_l[:,:,0]); print("_____________________-")
+# print(in_l[:,:,0]); print("_____________________-")
 f_in = open("input_layer.txt","w")
 f_in_b = open("input_layer.bin","wb")
 for z in range(0,dim):
@@ -72,7 +73,7 @@ for k in range(0,ker):
 # print(out_1[1,1,:,:]);print('______')
 f_out_1 = open("out_1x1.txt","w")
 f_out_1_b = open("out_1x1.bin","wb")
-# out_1 = np.arange(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
+# out_1 = np.arange(ker*dep*dim*dim, dtype='int8').reshape((ker,dep,dim,dim))
 for r in range(0,dim):
     for d in range(0,dep):
         for c in range(0,dim):
@@ -89,7 +90,7 @@ for k in range(0,ker):
         res = np.bitwise_and(res, 0xff)
         out_3[k,l,:,:]=res
 # print(out_3[1,1,:,:]);print('______')
-# out_3 = np.arange(ker*dep*dim*dim, dtype='uint32').reshape((ker,dep,dim,dim))
+# out_3 = np.arange(ker*dep*dim*dim, dtype='int8').reshape((ker,dep,dim,dim))
 
 f_out_3 = open("out_3x3.txt","w")
 f_out_3_b = open("out_3x3.bin","wb")
@@ -131,13 +132,13 @@ for x in range(0,dim):
 ############ pooling
 # out_1 = np.arange(ker*dim*dim, dtype='uint8').reshape((ker,dim,dim)) #test pool
 # print(out_1)
-pool_1 = np.zeros((ker,dim_o,dim_o))
+pool_1 = np.zeros((ker,dim_o,dim_o), dtype = 'uint8') #initialize
 for x in range(0,dim_o):
     xx = x*2
     for y in range(0,dim_o):
         yy = y*2
         pool_1[:,x,y]= np.amax(out_1[:,xx:xx+3,yy:yy+3],(1,2))
-
+print(out_1[:,:,:]);print(pool_1[:,:,:]) # pool checking 
 pool_out_1 = open("pool_1.txt","w")
 pool_out_1_b = open("pool_1.bin","wb")
 # print(pool_1)
@@ -149,7 +150,7 @@ for x in range(0,dim_o):
 
 # out_3 = np.arange(ker*dim*dim, dtype='uint8').reshape((ker,dim,dim)) #test pool
 # print(out_3)
-pool_3 = np.zeros((ker,dim_o,dim_o))
+pool_3 = np.zeros((ker,dim_o,dim_o), dtype = 'uint8')
 for x in range(0,dim_o):
     xx = x*2
     for y in range(0,dim_o):
@@ -167,9 +168,19 @@ for x in range(0,dim_o):
 
 ################## squeeze
 sq_in=[]
-if pool_en == 1:
-    sq_in = np.concatenate((pool_1, pool_3), axis=0)
-else:
-    sq_in = np.concatenate((out_1, out_3), axis=0)
+dep = ker # TODO
+# if pool_en == 1: # ########TODO add first layer heere
+#     sq_in = np.concatenate((pool_1, pool_3), axis=0)
+#     dim_sq = dim_o
+# else:
+#     sq_in = np.concatenate((out_1, out_3), axis=0)
+#     dim_sq = dim
 
-# print(out_1[])
+# sq_ker_l = np.arange(sq_ker*dep, dtype='uint8').reshape((ker,dep))
+# # print(ker_l_1);print("________")
+# # f_k_1 = open("ker_1x1.txt","w")
+# # f_k_1_b = open("ker_1x1.bin","wb")
+# # for z in range(0,dep):
+# #     lis = ker_l_1[:,z]
+# #     f_k_1_b.write(bytearray(lis))
+# #     f_k_1.write(str(lis)[1:-1]+'\n')
