@@ -6,6 +6,7 @@ dep = 4
 ker = 32
 sq_ker = 16
 pool_en = 0
+av_pool_en = 1
 random = 0 #TODO
 sq_rep = 0 # repete squze kernl for last layer
 
@@ -182,10 +183,14 @@ else:
 # sq_in = np.rollaxis(sq_in,0,3)
 
 ########################   squ kernel
-sq_ker_l = np.arange(sq_ker*dep, dtype='uint8').reshape((sq_ker,dep))
+if random == 0:
+    sq_ker_l = np.arange(sq_ker*dep, dtype='uint8').reshape((sq_ker,dep))
+else:
+    sq_ker_l = np.random.randint(low = 0, high = 255, size = (sq_ker,dep), dtype='uint8')
+
 sq_k_1 = open("sq_ker.txt","w")
 sq_k_1_b = open("sq_ker.bin","wb")
-# print(sq_ker_l)
+# print(sq_ker_l[0,:])
 dep_h = dep//2
 
 rep_no = 1
@@ -237,3 +242,11 @@ for r in range(0,dim_sq):
         lis = sq_out[d,r,:]
         f_sq_out_1_b.write(bytearray(lis))
         f_sq_out_1.write(str(lis)[1:-1]+'\n')
+
+########################     avg pool
+if av_pool_en == 1:
+    av_pool = np.sum(sq_out,axis = (1,2), dtype = 'uint8')
+    f_av_out_1 = open("av_pool_out.txt","w")
+    f_av_out_1_b = open("av_pool_out.bin","wb")
+    f_av_out_1_b.write(bytearray(av_pool))
+    f_av_out_1.write(str(av_pool)[1:-1]+'\n')
