@@ -10,7 +10,7 @@ pool_en = 0
 av_pool_en = 1
 random = 0 #TODO
 sq_rep = 0 # repete squze kernl for last layer
-double_res_en = 0 # enable double resource
+double_res_en = 1 # enable double resource
 
 
 #######################         Input image
@@ -97,14 +97,14 @@ if double_res_en == 0:
         b_bis_list.append(bis_1[i:i+4])
         # b_bis_b.write(bytearray(bis_3[i:i+4]))
         # b_bis_b.write(bytearray(bis_1[i:i+4]))
-if double_res_en == 0:
+if double_res_en == 1:
     for i in range(0,ker,8):
         b_bis.write(str(bis_3[i:i+8])[1:-1]+'\n')
         b_bis.write(str(bis_1[i:i+8])[1:-1]+'\n')
         b_bis_list.append(bis_3[i:i+8])
         b_bis_list.append(bis_1[i:i+8])
-        # b_bis_b.write(bytearray(bis_3[i:i+4]))
-        # b_bis_b.write(bytearray(bis_1[i:i+4]))
+        # b_bis_b.write(bytearray(bis_3[i:i+8]))
+        # b_bis_b.write(bytearray(bis_1[i:i+8]))
 
 np.array(b_bis_list).astype('uint16').tofile('bias.bin')# binary writing order 256 -> 00 01 , 1 ->01 00
 #######################        expand convolution
@@ -232,87 +232,98 @@ for x in range(0,dim_o):
 
 np.array(pool_out_3_b_list).astype('uint16').tofile("pool_3.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
-# ########################################## Part 2 #################################
-# ########################## squeeze
-# sq_in=[] # dep*dim*dim
-# dep = ker*2 # TODO firs layer no ned 2
-# if pool_en == 1: # ########TODO add first layer heere
-#     sq_in = np.concatenate((pool_1, pool_3), axis=0)
-#     dim_sq = dim_o
-# else:
-#     sq_in = np.concatenate((out_1, out_3), axis=0)
-#     dim_sq = dim
+########################################## Part 2 #################################
+########################## squeeze
+sq_in=[] # dep*dim*dim
+dep = ker*2 # TODO firs layer no ned 2
+if pool_en == 1: # ########TODO add first layer heere
+    sq_in = np.concatenate((pool_1, pool_3), axis=0)
+    dim_sq = dim_o
+else:
+    sq_in = np.concatenate((out_1, out_3), axis=0)
+    dim_sq = dim
 
-# # print(out_1[31,:,:])
-# # print(out_3[0,:,:])
-# # print(sq_in[31:33,:,:])
-# # sq_in = np.rollaxis(sq_in,0,3)
+# print(out_1[31,:,:])
+# print(out_3[0,:,:])
+# print(sq_in[31:33,:,:])
+# sq_in = np.rollaxis(sq_in,0,3)
 
-# ########################   squ kernel
-# if random == 0:
-#     sq_ker_l = np.arange(sq_ker*dep, dtype='uint16').reshape((sq_ker,dep))
-# else:
-#     sq_ker_l = np.random.randint(low = 0, high = 65536, size = (sq_ker,dep), dtype='uint16')
+########################   squ kernel
+if random == 0:
+    sq_ker_l = np.arange(sq_ker*dep, dtype='uint16').reshape((sq_ker,dep))
+else:
+    sq_ker_l = np.random.randint(low = 0, high = 65536, size = (sq_ker,dep), dtype='uint16')
 
-# sq_k_1 = open("sq_ker.txt","w")
-# sq_k_1_b = open("sq_ker.bin","wb")
-# # print(sq_ker_l[0,:])
-# dep_h = dep//2
+sq_k_1 = open("sq_ker.txt","w")
+sq_k_1_b_list = []
+# print(sq_ker_l[0,:])
+dep_h = dep//2
 
-# rep_no = 1
-# if(sq_rep == 1):
-#     rep_no = dim_sq
-# for r in range(0,rep_no):
-#     for x in range(0,sq_ker):
-#         for z in range(0,dep_h,8):
-#             lis = sq_ker_l[x,z+dep_h:z+dep_h+8]#kerle of 3x3 part
-#             sq_k_1.write(str(lis)[1:-1]+'\n')
-#             sq_k_1_b.write(bytearray(lis))
+rep_no = 1
+if(sq_rep == 1):
+    rep_no = dim_sq
+for r in range(0,rep_no):
+    for x in range(0,sq_ker):
+        for z in range(0,dep_h,8):
+            lis = sq_ker_l[x,z+dep_h:z+dep_h+8]#kerle of 3x3 part
+            sq_k_1.write(str(lis)[1:-1]+'\n')
+            sq_k_1_b_list.append(lis)
+            # sq_k_1_b.write(bytearray(lis))
 
-#             lis = sq_ker_l[x,z:z+8]
-#             sq_k_1.write(str(lis)[1:-1]+'\n')
-#             sq_k_1_b.write(bytearray(lis))
+            lis = sq_ker_l[x,z:z+8]
+            sq_k_1.write(str(lis)[1:-1]+'\n')
+            sq_k_1_b_list.append(lis)
+            # sq_k_1_b.write(bytearray(lis))
     
+np.array(sq_k_1_b_list).astype('uint16').tofile("sq_ker.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
-# #######################    squ bias
-# sq_bis_1 = np.arange(sq_ker,dtype='uint16')
-# f_sq_bis = open("sq_bias.txt","w")
-# f_sq_bis_b = open("sq_bias.bin","wb")
+#######################    squ bias
+sq_bis_1 = np.arange(sq_ker,dtype='uint16')
+f_sq_bis = open("sq_bias.txt","w")
+f_sq_bis_b_list = []
 
-# f_sq_bis.write(str(sq_bis_1)[1:-1]+'\n')
+f_sq_bis.write(str(sq_bis_1)[1:-1]+'\n')
 # f_sq_bis_b.write(bytearray(sq_bis_1))
+f_sq_bis_b_list.append(sq_bis_1)
 
-# ######################    squ convoluve
-# sq_out = np.zeros((sq_ker,dep,dim_sq,dim_sq), dtype='uint16')
-# for k in range(0,sq_ker):
-#     for l in range(0,dep):
-#         res = sg.convolve(sq_in[l,:,:],[[sq_ker_l[k,l]]] , "valid").astype(int)
-#         res = np.bitwise_and(res, 0xff)
-#         sq_out[k,l,:,:]=res
+np.array(f_sq_bis_b_list).astype('uint16').tofile("sq_bias.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
-# # print(sq_in[2,:,:])
-# # print(sq_ker_l[0,2])
-# # print(sq_out[0,2,:,:])
+######################    squ convoluve
+sq_out = np.zeros((sq_ker,dep,dim_sq,dim_sq), dtype='uint16')
+for k in range(0,sq_ker):
+    for l in range(0,dep):
+        res = sg.convolve(sq_in[l,:,:],[[sq_ker_l[k,l]]] , "valid").astype(int)
+        res = np.bitwise_and(res, 0xff)
+        sq_out[k,l,:,:]=res
 
-# sq_out = np.sum(sq_out,1,dtype='uint16') 
-# for i in range(0,sq_ker):
-#     sq_out[i,:,:] = sq_out[i,:,:] + sq_bis_1[i]
-# sq_out[sq_out > 32767] = 0 # no need for positive
+# print(sq_in[2,:,:])
+# print(sq_ker_l[0,2])
+# print(sq_out[0,2,:,:])
 
-# # sq_out = np.arange(sq_ker*dim_sq*dim_sq, dtype='uint16').reshape((sq_ker,dim_sq,dim_sq)) # test ouptu
-# # print(sq_out[0,:,:]);print('______')
-# f_sq_out_1 = open("sq_out.txt","w")
-# f_sq_out_1_b = open("sq_out.bin","wb")
-# for r in range(0,dim_sq):
-#     for d in range(0,sq_ker):
-#         lis = sq_out[d,r,:]
-#         f_sq_out_1_b.write(bytearray(lis))
-#         f_sq_out_1.write(str(lis)[1:-1]+'\n')
+sq_out = np.sum(sq_out,1,dtype='uint16') 
+for i in range(0,sq_ker):
+    sq_out[i,:,:] = sq_out[i,:,:] + sq_bis_1[i]
+sq_out[sq_out > 32767] = 0 # no need for positive
 
-# ########################     avg pool
-# if av_pool_en == 1:
-#     av_pool = np.sum(sq_out,axis = (1,2), dtype = 'uint16')
-#     f_av_out_1 = open("av_pool_out.txt","w")
-#     f_av_out_1_b = open("av_pool_out.bin","wb")
-#     f_av_out_1_b.write(bytearray(av_pool))
-#     f_av_out_1.write(str(av_pool)[1:-1]+'\n')
+# sq_out = np.arange(sq_ker*dim_sq*dim_sq, dtype='uint16').reshape((sq_ker,dim_sq,dim_sq)) # test ouptu
+# print(sq_out[0,:,:]);print('______')
+f_sq_out_1 = open("sq_out.txt","w")
+f_sq_out_1_b_list = []
+for r in range(0,dim_sq):
+    for d in range(0,sq_ker):
+        lis = sq_out[d,r,:]
+        # f_sq_out_1_b.write(bytearray(lis))
+        f_sq_out_1_b_list.append(lis)
+        f_sq_out_1.write(str(lis)[1:-1]+'\n')
+
+np.array(f_sq_out_1_b_list).astype('uint16').tofile("sq_out.bin")# binary writing order 256 -> 00 01, 1 ->01 00
+
+########################     avg pool
+if av_pool_en == 1:
+    av_pool = np.sum(sq_out,axis = (1,2), dtype = 'uint16')
+    f_av_out_1 = open("av_pool_out.txt","w")
+    f_av_out_1_b_list = []
+    # f_av_out_1_b.write(bytearray(av_pool))
+    f_av_out_1_b_list.append(av_pool)
+    f_av_out_1.write(str(av_pool)[1:-1]+'\n')
+    np.array(f_av_out_1_b_list).astype('uint16').tofile("av_pool_out.bin")# binary writing order 256 -> 00 01, 1 ->01 00
