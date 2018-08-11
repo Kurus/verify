@@ -150,7 +150,7 @@ np.array(f_out_3_b_list).astype('uint16').tofile("out_3x3.bin")# binary writing 
 out_1 = np.sum(out_1,1,dtype='uint16') 
 for i in range(0,ker):
     out_1[i,:,:] = out_1[i,:,:] + bis_1[i]
-out_1[out_1 > 127] = 0 # no need for positive
+out_1[out_1 > 32767] = 0 # no need for positive
 exp_out_1 = open("exp_1.txt","w")
 exp_out_1_b_list = []
 for x in range(0,dim):
@@ -165,7 +165,7 @@ np.array(exp_out_1_b_list).astype('uint16').tofile("exp_1.bin")# binary writing 
 out_3 = np.sum(out_3,1,dtype='uint16')
 for i in range(0,ker):
     out_3[i,:,:] = out_3[i,:,:] + bis_3[i]
-out_3[out_3 > 127] = 0
+out_3[out_3 > 32767] = 0
 exp_out_3 = open("exp_3.txt","w")
 exp_out_3_b_list = []
 for x in range(0,dim):
@@ -286,7 +286,7 @@ np.array(pool_out_3_b_list).astype('uint16').tofile("pool_3.bin")# binary writin
 # sq_out = np.sum(sq_out,1,dtype='uint16') 
 # for i in range(0,sq_ker):
 #     sq_out[i,:,:] = sq_out[i,:,:] + sq_bis_1[i]
-# sq_out[sq_out > 127] = 0 # no need for positive
+# sq_out[sq_out > 32767] = 0 # no need for positive
 
 # # sq_out = np.arange(sq_ker*dim_sq*dim_sq, dtype='uint16').reshape((sq_ker,dim_sq,dim_sq)) # test ouptu
 # # print(sq_out[0,:,:]);print('______')
