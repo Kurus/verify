@@ -1,7 +1,7 @@
 # converting to 16 bit 
 import numpy as np
 from scipy import signal as sg
-dim = 6
+dim = 3
 dim_p=dim + 2
 dep = 4
 ker = 8
@@ -35,9 +35,9 @@ for z in range(0,dim):
 np.array(f_list).astype('uint16').tofile('input_layer.bin')# binary writing order 256 -> 00 01, 1 ->01 00
 
 ########################        expand kernels 
-ker_l_1 = np.arange(ker*dep, dtype='uint16').reshape((ker,dep))
+# ker_l_1 = np.arange(ker*dep, dtype='uint16').reshape((ker,dep))
 # ker_l_1 = np.random.randint(low = 256, high = 65536, size = (ker,dep), dtype='uint16')
-# ker_l_1 = np.full(ker*dep, 0, dtype='uint8').reshape((ker,dep))
+ker_l_1 = np.full(ker*dep, 1, dtype='uint8').reshape((ker,dep))
 print("kernel 1")
 print(ker_l_1[0,0])
 f_k_1 = open("ker_1x1.txt","w")
@@ -108,7 +108,7 @@ print(out_1[0,0,:,:])
 f_out_1 = open("out_1x1.txt","w")
 f_out_1_b_list = []
 
-# out_1 = np.arange(ker*dep*dim*dim, dtype='uint16').reshape((ker,dep,dim,dim))
+# out_1 = np.arange(ker*dep*dim*dim, dtype='uint16').reshape((ker,dep,dim,dim)) #######for testing only
 
 for r in range(0,dim):
     for d in range(0,dep):
@@ -128,7 +128,7 @@ for k in range(0,ker):
         # res = np.bitwise_and(res, 0xffff)
         out_3[k,l,:,:]=res
 
-out_3 = np.arange(ker*dep*dim*dim, dtype='uint16').reshape((ker,dep,dim,dim))
+# out_3 = np.arange(ker*dep*dim*dim, dtype='uint16').reshape((ker,dep,dim,dim)) ############# for testing only
 
 print("after conv 3x3 vef add")
 print(out_3[0,0,:,:])
