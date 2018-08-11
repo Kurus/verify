@@ -1,4 +1,4 @@
-# converting to 16 bit 
+# converting to 16 bit
 import numpy as np
 from scipy import signal as sg
 dim = 6
