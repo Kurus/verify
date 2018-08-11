@@ -10,6 +10,8 @@ pool_en = 0
 av_pool_en = 1
 random = 0 #TODO
 sq_rep = 0 # repete squze kernl for last layer
+double_res_en = 0 # enable double resource
+
 
 #######################         Input image
 in_l = np.zeros(dim_p*dim_p*dep, dtype='uint16').reshape((dim_p,dim_p,dep))
@@ -87,13 +89,23 @@ print("bias 1")
 print(bis_1)
 print("bias 3")
 print(bis_3)
-for i in range(0,ker,4):
-    b_bis.write(str(bis_3[i:i+4])[1:-1]+'\n')
-    b_bis.write(str(bis_1[i:i+4])[1:-1]+'\n')
-    b_bis_list.append(bis_3[i:i+4])
-    b_bis_list.append(bis_1[i:i+4])
-    # b_bis_b.write(bytearray(bis_3[i:i+4]))
-    # b_bis_b.write(bytearray(bis_1[i:i+4]))
+if double_res_en == 0:
+    for i in range(0,ker,4):
+        b_bis.write(str(bis_3[i:i+4])[1:-1]+'\n')
+        b_bis.write(str(bis_1[i:i+4])[1:-1]+'\n')
+        b_bis_list.append(bis_3[i:i+4])
+        b_bis_list.append(bis_1[i:i+4])
+        # b_bis_b.write(bytearray(bis_3[i:i+4]))
+        # b_bis_b.write(bytearray(bis_1[i:i+4]))
+if double_res_en == 0:
+    for i in range(0,ker,8):
+        b_bis.write(str(bis_3[i:i+8])[1:-1]+'\n')
+        b_bis.write(str(bis_1[i:i+8])[1:-1]+'\n')
+        b_bis_list.append(bis_3[i:i+8])
+        b_bis_list.append(bis_1[i:i+8])
+        # b_bis_b.write(bytearray(bis_3[i:i+4]))
+        # b_bis_b.write(bytearray(bis_1[i:i+4]))
+
 np.array(b_bis_list).astype('uint16').tofile('bias.bin')# binary writing order 256 -> 00 01 , 1 ->01 00
 #######################        expand convolution
 out_1 = np.zeros(ker*dep*dim*dim, dtype='uint16').reshape((ker,dep,dim,dim))
