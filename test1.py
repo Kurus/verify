@@ -147,68 +147,79 @@ np.array(f_out_3_b_list).astype('uint16').tofile("out_3x3.bin")# binary writing 
 ######################################### Part 1 #################################################
 # ############################ add bias and relu
 
-# out_1 = np.sum(out_1,1,dtype='uint16') 
-# for i in range(0,ker):
-#     out_1[i,:,:] = out_1[i,:,:] + bis_1[i]
-# out_1[out_1 > 127] = 0 # no need for positive
-# exp_out_1 = open("exp_1.txt","w")
-# exp_out_1_b = open("exp_1.bin","wb")
-# for x in range(0,dim):
-#     for y in range(0,dim):
-#         lis=out_1[:,x,y]
-#         exp_out_1_b.write(bytearray(lis))
-#         exp_out_1.write(str(lis)[1:-1]+'\n')
+out_1 = np.sum(out_1,1,dtype='uint16') 
+for i in range(0,ker):
+    out_1[i,:,:] = out_1[i,:,:] + bis_1[i]
+out_1[out_1 > 127] = 0 # no need for positive
+exp_out_1 = open("exp_1.txt","w")
+exp_out_1_b_list = []
+for x in range(0,dim):
+    for y in range(0,dim):
+        lis=out_1[:,x,y]
+        # exp_out_1_b.write(bytearray(lis))
+        exp_out_1_b_list.append(lis)
+        exp_out_1.write(str(lis)[1:-1]+'\n')
 
+np.array(exp_out_1_b_list).astype('uint16').tofile("exp_1.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
-# out_3 = np.sum(out_3,1,dtype='uint16')
-# for i in range(0,ker):
-#     out_3[i,:,:] = out_3[i,:,:] + bis_3[i]
-# out_3[out_3 > 127] = 0
-# exp_out_3 = open("exp_3.txt","w")
-# exp_out_3_b = open("exp_3.bin","wb")
-# for x in range(0,dim):
-#     for y in range(0,dim):
-#         lis=out_3[:,x,y]
-#         exp_out_3_b.write(bytearray(lis))
-#         exp_out_3.write(str(lis)[1:-1]+'\n')
+out_3 = np.sum(out_3,1,dtype='uint16')
+for i in range(0,ker):
+    out_3[i,:,:] = out_3[i,:,:] + bis_3[i]
+out_3[out_3 > 127] = 0
+exp_out_3 = open("exp_3.txt","w")
+exp_out_3_b_list = []
+for x in range(0,dim):
+    for y in range(0,dim):
+        lis=out_3[:,x,y]
+        # exp_out_3_b.write(bytearray(lis))
+        exp_out_3_b_list.append(lis)
+        exp_out_3.write(str(lis)[1:-1]+'\n')
 
-# ############################# pooling
-# dim_o = (dim - 1)//2
-# # out_1 = np.arange(ker*dim*dim, dtype='uint16').reshape((ker,dim,dim)) #test pool
-# # print(out_1)
-# pool_1 = np.zeros((ker,dim_o,dim_o), dtype = 'uint16') #initialize
-# for x in range(0,dim_o):
-#     xx = x*2
-#     for y in range(0,dim_o):
-#         yy = y*2
-#         pool_1[:,x,y]= np.amax(out_1[:,xx:xx+3,yy:yy+3],(1,2))
-# # print(out_1[:,:,:]);print(pool_1[:,:,:]) # pool checking 
-# pool_out_1 = open("pool_1.txt","w")
-# pool_out_1_b = open("pool_1.bin","wb")
-# # print(pool_1)
-# for x in range(0,dim_o):
-#     for y in range(0,dim_o):
-#         lis=pool_1[:,x,y]
-#         pool_out_1_b.write(bytearray(lis))
-#         pool_out_1.write(str(lis)[1:-1]+'\n')
+np.array(exp_out_3_b_list).astype('uint16').tofile("exp_3.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
-# # out_3 = np.arange(ker*dim*dim, dtype='uint16').reshape((ker,dim,dim)) #test pool
-# # print(out_3)
-# pool_3 = np.zeros((ker,dim_o,dim_o), dtype = 'uint16')
-# for x in range(0,dim_o):
-#     xx = x*2
-#     for y in range(0,dim_o):
-#         yy = y*2
-#         pool_3[:,x,y]= np.amax(out_3[:,xx:xx+3,yy:yy+3],(1,2))
+############################# pooling
+dim_o = (dim - 1)//2
+# out_1 = np.arange(ker*dim*dim, dtype='uint16').reshape((ker,dim,dim)) #test pool
+# print(out_1)
+pool_1 = np.zeros((ker,dim_o,dim_o), dtype = 'uint16') #initialize
+for x in range(0,dim_o):
+    xx = x*2
+    for y in range(0,dim_o):
+        yy = y*2
+        pool_1[:,x,y]= np.amax(out_1[:,xx:xx+3,yy:yy+3],(1,2))
+# print(out_1[:,:,:]);print(pool_1[:,:,:]) # pool checking 
+pool_out_1 = open("pool_1.txt","w")
+pool_out_1_b_list = []
+# print(pool_1)
+for x in range(0,dim_o):
+    for y in range(0,dim_o):
+        lis=pool_1[:,x,y]
+        # pool_out_1_b.write(bytearray(lis))
+        pool_out_1_b_list.append(lis)
+        pool_out_1.write(str(lis)[1:-1]+'\n')
 
-# pool_out_3 = open("pool_3.txt","w")
-# pool_out_3_b = open("pool_3.bin","wb")
-# # print(pool_3)
-# for x in range(0,dim_o):
-#     for y in range(0,dim_o):
-#         lis=pool_3[:,x,y]
-#         pool_out_3_b.write(bytearray(lis))
-#         pool_out_3.write(str(lis)[1:-1]+'\n')
+np.array(pool_out_1_b_list).astype('uint16').tofile("pool_1.bin")# binary writing order 256 -> 00 01, 1 ->01 00
+
+# out_3 = np.arange(ker*dim*dim, dtype='uint16').reshape((ker,dim,dim)) #test pool
+# print(out_3)
+pool_3 = np.zeros((ker,dim_o,dim_o), dtype = 'uint16')
+for x in range(0,dim_o):
+    xx = x*2
+    for y in range(0,dim_o):
+        yy = y*2
+        pool_3[:,x,y]= np.amax(out_3[:,xx:xx+3,yy:yy+3],(1,2))
+
+pool_out_3 = open("pool_3.txt","w")
+pool_out_3_b_list = []
+# print(pool_3)
+for x in range(0,dim_o):
+    for y in range(0,dim_o):
+        lis=pool_3[:,x,y]
+        # pool_out_3_b.write(bytearray(lis))
+        pool_out_3_b_list.append(lis)
+        pool_out_3.write(str(lis)[1:-1]+'\n')
+
+np.array(pool_out_3_b_list).astype('uint16').tofile("pool_3.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
 # ########################################## Part 2 #################################
 # ########################## squeeze
