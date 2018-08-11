@@ -27,7 +27,7 @@ f_list = []
 for z in range(0,dim):
     for y in range(0,dep):
         for x in range(0,dim):
-            lis = in_l[z:z+3,x:x+3,y].flatten().tolist()[0:-1]
+            lis = in_l[z:z+3,x:x+3,y].flatten().tolist()
             for rep in range(0,ker,4):
                 f_in.write(str(lis)[1:-1]+'\n')
                 f_list.append(lis)
