@@ -100,7 +100,7 @@ out_1 = np.zeros(ker*dep*dim*dim, dtype='uint16').reshape((ker,dep,dim,dim))
 for k in range(0,ker):
     for l in range(0,dep):
         res = sg.convolve(in_l[:,:,l],[[ker_l_1[k,l]]] , "valid").astype(int)
-        # res = np.bitwise_and(res, 0xffff)
+        res = np.bitwise_and(res, 0xffff)
         out_1[k,l,:,:]=res[1:-1,1:-1]
 print("after conv 1x1 bef add")
 print(out_1[0,0,:,:])
@@ -124,7 +124,7 @@ for k in range(0,ker):
     for l in range(0,dep):
         kk = np.rot90(ker_l_3[k,l].reshape((3,3)),2)
         res = sg.convolve(in_l[:,:,l],kk , "valid").astype(int) # addre lus
-        # res = np.bitwise_and(res, 0xffff)
+        res = np.bitwise_and(res, 0xffff)
         out_3[k,l,:,:]=res
 
 # out_3 = np.arange(ker*dep*dim*dim, dtype='uint16').reshape((ker,dep,dim,dim)) ############# for testing only
