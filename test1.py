@@ -4,13 +4,13 @@ from scipy import signal as sg
 dim = 3
 dim_p=dim + 2
 dep = 4
-ker = 8
+ker = 16
 sq_ker = 16
 pool_en = 0
 av_pool_en = 1
 random = 0 #TODO
 sq_rep = 0 # repete squze kernl for last layer
-double_res_en = 1 # enable double resource
+double_res_en = 0 # enable double resource
 
 
 #######################         Input image
@@ -38,7 +38,8 @@ np.array(f_list).astype('uint16').tofile('input_layer.bin')# binary writing orde
 ########################        expand kernels 
 # ker_l_1 = np.arange(ker*dep, dtype='uint16').reshape((ker,dep))
 # ker_l_1 = np.random.randint(low = 256, high = 65536, size = (ker,dep), dtype='uint16')
-ker_l_1 = np.full(ker*dep, 1, dtype='uint8').reshape((ker,dep))
+ker_l_1 = np.full(ker*dep, 0, dtype='uint16').reshape((ker,dep))
+ker_l_1[0,0]=1
 print("kernel 1")
 print(ker_l_1[0,0])
 f_k_1 = open("ker_1x1.txt","w")
@@ -54,7 +55,7 @@ np.array(f_k_1_list).astype('uint16').tofile('ker_1x1.bin')# binary writing orde
 
 # ker_l_3 = np.arange(ker*dep*9, dtype='uint16').reshape((ker,dep,9))
 # ker_l_3 = np.random.randint(low = 256, high = 65536, size = (ker,dep,9), dtype='uint16')
-ker_l_3 = np.full(ker*dep*9, 1, dtype='uint8').reshape((ker,dep,9))
+ker_l_3 = np.full(ker*dep*9, 0, dtype='uint16').reshape((ker,dep,9))
 print("kenrel 3")
 print(ker_l_3[0,0,:])
 f_k_3 = open("ker_3x3.txt","w")
@@ -78,10 +79,10 @@ np.array(f_k_3_list).astype('uint16').tofile('ker_3x3.bin')# binary writing orde
 ########################        exapnd bias
 # bis_1 = np.arange(ker,dtype='uint16')
 # bis_1 = np.random.randint(low = 256, high = 65536, size = (ker), dtype='uint16')
-bis_1 = np.full(ker, 0, dtype='uint8')
+bis_1 = np.full(ker, 0, dtype='uint16')
 # bis_3 = np.arange(ker,dtype='uint16')
 # bis_3 = np.random.randint(low = 256, high = 65536, size = (ker), dtype='uint16')
-bis_3 = np.full(ker, 0, dtype='uint8')
+bis_3 = np.full(ker, 0, dtype='uint16')
 b_bis = open("bias.txt","w")
 b_bis_list = []
 
@@ -243,16 +244,16 @@ else:
     sq_in = np.concatenate((out_1, out_3), axis=0)
     dim_sq = dim
 
-# print(out_1[31,:,:])
+print(out_1[0:2,:,:])
 # print(out_3[0,:,:])
 # print(sq_in[31:33,:,:])
 # sq_in = np.rollaxis(sq_in,0,3)
 
 ########################   squ kernel
-if random == 0:
-    sq_ker_l = np.arange(sq_ker*dep, dtype='uint16').reshape((sq_ker,dep))
-else:
-    sq_ker_l = np.random.randint(low = 0, high = 65536, size = (sq_ker,dep), dtype='uint16')
+# sq_ker_l = np.random.randint(low = 0, high = 65536, size = (sq_ker,dep), dtype='uint16')
+# sq_ker_l = np.arange(sq_ker*dep, dtype='uint16').reshape((sq_ker,dep))
+sq_ker_l = np.full(sq_ker*dep, 0, dtype='uint16').reshape((sq_ker,dep))
+sq_ker_l[0,0]=1
 
 sq_k_1 = open("sq_ker.txt","w")
 sq_k_1_b_list = []
@@ -294,7 +295,10 @@ if double_res_en == 1:
 np.array(sq_k_1_b_list).astype('uint16').tofile("sq_ker.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
 #######################    squ bias
-sq_bis_1 = np.arange(sq_ker,dtype='uint16')
+# sq_bis_1 = np.arange(sq_ker,dtype='uint16')
+# sq_bis_1 = np.random.randint(low = 0, high = 65536, size = (sq_ker), dtype='uint16')
+sq_bis_1 = np.full(sq_ker, 0, dtype='uint16')
+
 f_sq_bis = open("sq_bias.txt","w")
 f_sq_bis_b_list = []
 
@@ -312,9 +316,12 @@ for k in range(0,sq_ker):
         res = np.bitwise_and(res, 0xff)
         sq_out[k,l,:,:]=res
 
-# print(sq_in[2,:,:])
-# print(sq_ker_l[0,2])
-# print(sq_out[0,2,:,:])
+print("input to squeeze")
+print(sq_in[0,:,:])
+print("kernel")
+print(sq_ker_l[0,0])
+print("output of squeeze")
+print(sq_out[0,0,:,:])
 
 sq_out = np.sum(sq_out,1,dtype='uint16') 
 for i in range(0,sq_ker):
@@ -322,7 +329,7 @@ for i in range(0,sq_ker):
 sq_out[sq_out > 32767] = 0 # no need for positive
 
 # sq_out = np.arange(sq_ker*dim_sq*dim_sq, dtype='uint16').reshape((sq_ker,dim_sq,dim_sq)) # test ouptu
-# print(sq_out[0,:,:]);print('______')
+# print(sq_out[0,:,:])
 f_sq_out_1 = open("sq_out.txt","w")
 f_sq_out_1_b_list = []
 for r in range(0,dim_sq):
