@@ -262,19 +262,35 @@ dep_h = dep//2
 rep_no = 1
 if(sq_rep == 1):
     rep_no = dim_sq
-for r in range(0,rep_no):
-    for x in range(0,sq_ker):
-        for z in range(0,dep_h,8):
-            lis = sq_ker_l[x,z+dep_h:z+dep_h+8]#kerle of 3x3 part
-            sq_k_1.write(str(lis)[1:-1]+'\n')
-            sq_k_1_b_list.append(lis)
-            # sq_k_1_b.write(bytearray(lis))
 
-            lis = sq_ker_l[x,z:z+8]
-            sq_k_1.write(str(lis)[1:-1]+'\n')
-            sq_k_1_b_list.append(lis)
-            # sq_k_1_b.write(bytearray(lis))
-    
+if double_res_en == 0:
+    for r in range(0,rep_no):
+        for x in range(0,sq_ker):
+            for z in range(0,dep_h,8):
+                lis = sq_ker_l[x,z+dep_h:z+dep_h+8]#kerle of 3x3 part
+                sq_k_1.write(str(lis)[1:-1]+'\n')
+                sq_k_1_b_list.append(lis)
+                # sq_k_1_b.write(bytearray(lis))
+
+                lis = sq_ker_l[x,z:z+8]
+                sq_k_1.write(str(lis)[1:-1]+'\n')
+                sq_k_1_b_list.append(lis)
+                # sq_k_1_b.write(bytearray(lis))
+
+if double_res_en == 1:
+    for r in range(0,rep_no):
+        for x in range(0,sq_ker):
+            for z in range(0,dep_h,16):
+                lis = sq_ker_l[x,z+dep_h:z+dep_h+16]#kerle of 3x3 part
+                sq_k_1.write(str(lis)[1:-1]+'\n')
+                sq_k_1_b_list.append(lis)
+                # sq_k_1_b.write(bytearray(lis))
+
+                lis = sq_ker_l[x,z:z+16]
+                sq_k_1.write(str(lis)[1:-1]+'\n')
+                sq_k_1_b_list.append(lis)
+                # sq_k_1_b.write(bytearray(lis))
+
 np.array(sq_k_1_b_list).astype('uint16').tofile("sq_ker.bin")# binary writing order 256 -> 00 01, 1 ->01 00
 
 #######################    squ bias
